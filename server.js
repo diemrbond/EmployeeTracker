@@ -179,7 +179,7 @@ const viewRoles = () => {
     
     console.log("")
 
-    connection.query("SELECT * FROM role", function (error, response) {
+    connection.query("SELECT role.id, role.title, role.salary, department.name AS department FROM role JOIN department ON role.department_id = department.id;", function (error, response) {
         if (error) console.log(`${logSymbols.error} ${error}`);
         console.table(response);
         mainMenu();
