@@ -1,0 +1,29 @@
+{
+  "name": "employeetracker",
+  "version": "1.0.0",
+  "description": "A CLI program to view employees, roles and departments in employeeDB",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "watch": "nodemon server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diemrbond/EmployeeTracker.git"
+  },
+  "author": "Andrew Kelleher",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/diemrbond/EmployeeTracker/issues"
+  },
+  "homepage": "https://github.com/diemrbond/EmployeeTracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "dotenv": "^8.2.0",
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.6"
+  }
+}
