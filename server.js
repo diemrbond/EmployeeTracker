@@ -112,12 +112,15 @@ const view = () => {
 
             switch(response.view){
                 case "EMPLOYEES":
+                    viewEmployeesBy();
                     break;
 
                 case "ROLES":
+                    viewRoles();
                     break;
                     
                 case "DEPARTMENTS":
+                    viewDepartments();
                     break;
                     
                 case "BUDGET":
@@ -128,6 +131,70 @@ const view = () => {
                     break;                
             }
         });
+}
+
+const viewEmployeesBy = () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "VIEW EMPLOYEES by?",
+            name: "employees",
+            choices: ["ALL", "DEPARTMENT", "MANAGER", "RETURN TO MENU"]
+        }])
+        .then(function (response) {
+
+            switch(response.employees){
+                case "ALL":
+                    viewAllEmployees();
+                    break;
+
+                case "DEPARTMENT":
+                    break;
+                    
+                case "MANAGER":
+                    break;
+
+                case "RETURN TO MENU":
+                    view();
+                    break;                
+            }
+        });
+}
+
+const viewAllEmployees = () => {
+    
+    console.log("")
+
+    connection.query("SELECT * FROM employee", function (error, response) {
+        if (error) console.log(`${logSymbols.error} ${error}`);
+        console.table(response);
+        mainMenu();
+    });
+}
+
+const viewRoles = () => {
+    
+    console.log("")
+
+    connection.query("SELECT * FROM role", function (error, response) {
+        if (error) console.log(`${logSymbols.error} ${error}`);
+        console.table(response);
+        mainMenu();
+    });
+}
+
+const viewDepartments = () => {
+    
+    console.log("")
+    
+    connection.query("SELECT * FROM department", function (error, response) {
+        if (error) console.log(`${logSymbols.error} ${error}`);
+        console.table(response);
+        mainMenu();
+    });
 }
 
 // Update
