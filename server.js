@@ -81,6 +81,7 @@ const add = () => {
 
             switch (response.add) {
                 case "EMPLOYEES":
+                    addEmployee();
                     break;
 
                 case "ROLES":
@@ -152,6 +153,50 @@ const addRole = async () => {
             let query = connection.query("INSERT INTO role SET ?", { title: tempTitle, salary: response.salary, department_id: response.department }, function (error, response) {
                 if (error) console.log(`${logSymbols.error} ${error}`);
                 console.log(`${logSymbols.success} Added role ${tempTitle}, salary ${tempSalary}, department_id ${tempDepartment}`)
+                mainMenu();
+            });
+        });
+}
+
+const addEmployee = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "input",
+            message: "What is your EMPLOYEE's FIRST NAME?",
+            name: "first",
+            validate: value => value != "" ? true : logSymbols.warning + " Please enter a FIRST NAME!"
+        },
+        {
+            type: "input",
+            message: "What is your EMPLOYEE's LAST NAME?",
+            name: "last",
+            validate: value => value != "" ? true : logSymbols.warning + " Please enter a LAST NAME!"
+        },        
+        {
+            type: "list",
+            message: "What is the EMPLOYEE's ROLE?",
+            name: "role",
+            choices: await getRoles
+        },        
+        {
+            type: "list",
+            message: "Who is the EMPLOYEE's MANAGER?",
+            name: "manager",
+            choices: await getEmployees
+        }])
+        .then(function (response) {
+
+            let tempFirst = response.first;
+            let tempLast = response.last;
+            let tempRole = response.role;
+            let tempManager = response.manager;
+
+            let query = connection.query("INSERT INTO employee SET ?", { first_name: tempFirst, last_name: tempLast, role_id: tempRole, manager_id: tempManager }, function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.log(`${logSymbols.success} Added employee ${tempFirst + " " + tempLast}, role_id ${tempRole}, manager_id ${tempManager}`)
                 mainMenu();
             });
         });
@@ -341,7 +386,7 @@ async function getManagers() {
         let query = connection.query("SELECT DISTINCT E1.manager_id, CONCAT(E2.first_name, ' ', E2.last_name) AS manager FROM employee AS E1 JOIN employee AS E2 ON E1.manager_id = E2.id WHERE E1.manager_id IS NOT NULL;", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
-            response.forEach(manager => { returnarray.push(manager.manager) })
+            response.forEach(manager => { returnarray.push({name: manager.manager, value: manager.id}) })
             success(returnarray);
         });
     })
