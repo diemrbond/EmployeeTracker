@@ -334,7 +334,7 @@ async function getDepartments(addCancel) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
             response.forEach(department => { returnarray.push({ name: department.name, value: department.id }) })
-            if(addCancel){
+            if (addCancel) {
                 returnarray.push({ name: `${logSymbols.error} Cancel`, value: null })
             }
             success(returnarray);
@@ -349,7 +349,7 @@ async function getRoles(addCancel) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
             response.forEach(role => { returnarray.push({ name: role.title, value: role.id }) })
-            if(addCancel){
+            if (addCancel) {
                 returnarray.push({ name: `${logSymbols.error} Cancel`, value: null })
             }
             success(returnarray);
@@ -364,8 +364,8 @@ async function getEmployees(addCancel) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
             response.forEach(emp => { returnarray.push({ name: (emp.first_name + " " + emp.last_name), value: emp.id }) })
-            if(addCancel){
-                if (addCancel != true){
+            if (addCancel) {
+                if (addCancel != true) {
                     returnarray.push({ name: `${logSymbols.error} ${addCancel}`, value: null })
                 }
                 else {
@@ -422,15 +422,84 @@ const update = () => {
 
             switch (response.update) {
                 case "ROLES":
+                    updateRole();
                     break;
 
                 case "MANAGERS":
+                    updateManager();
                     break;
 
                 case "RETURN TO MENU":
                     mainMenu();
                     break;
             }
+        });
+}
+
+const updateRole = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Which EMPLOYEE do you want to UPDATE?",
+            name: "whichEmployee",
+            choices: await getEmployees(false)
+        },
+        {
+            type: "list",
+            message: "Which ROLE do you want to change to?",
+            name: "whichRole",
+            choices: await getRoles(true)
+        }])
+        .then(async function (response) {
+
+            let tempEmployee = response.whichEmployee;
+            let tempRole = response.whichRole;
+
+            if (tempRole != null) {
+                let query = connection.query("UPDATE employee SET ? WHERE ?", [{ role_id: tempRole }, { id: tempEmployee }], function (error, response) {
+                    if (error) console.log(`${logSymbols.error} ${error}`);
+                    console.log(`${logSymbols.success} Updated employee ${tempEmployee}`)
+                    mainMenu();
+                });
+            }
+            else {
+                console.log(`${logSymbols.error} No Role Selected`);
+                mainMenu();
+            }
+        });
+}
+
+const updateManager = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Which EMPLOYEE do you want to UPDATE?",
+            name: "whichEmployee",
+            choices: await getEmployees(false)
+        },
+        {
+            type: "list",
+            message: "Which MANAGER do you want to change to?",
+            name: "whichManager",
+            choices: await getEmployees("None")
+        }])
+        .then(async function (response) {
+
+            let tempEmployee = response.whichEmployee;
+            let tempManager = response.whichManager;
+            
+            let query = connection.query("UPDATE employee SET ? WHERE ?", [{ manager_id: tempManager }, { id: tempEmployee }], function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.log(`${logSymbols.success} Updated employee ${tempEmployee}`)
+                mainMenu();
+            });
+
         });
 }
 
