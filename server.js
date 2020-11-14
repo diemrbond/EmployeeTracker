@@ -24,7 +24,7 @@ connection.connect(function (error) {
     console.log(`   88888                8                      `);
     console.log(`     8   8d8b .d88 .d8b 8.dP .d88b 8d8b        `);
     console.log(`     8   8P   8  8 8    88b  8.dP' 8P          `);
-    console.log(`     8   8    'Y88 'Y8P 8 Yb 'Y88P 8           `);                                                
+    console.log(`     8   8    'Y88 'Y8P 8 Yb 'Y88P 8           `);
     mainMenu();
 })
 
@@ -42,7 +42,7 @@ const mainMenu = () => {
         }])
         .then(function (response) {
 
-            switch(response.action){
+            switch (response.action) {
                 case "ADD":
                     add();
                     break;
@@ -60,7 +60,7 @@ const mainMenu = () => {
                     break;
 
                 case "EXIT PROGRAM":
-                    process.exit();  
+                    process.exit();
             }
         });
 }
@@ -79,19 +79,19 @@ const add = () => {
         }])
         .then(function (response) {
 
-            switch(response.add){
+            switch (response.add) {
                 case "EMPLOYEES":
                     break;
 
                 case "ROLES":
                     break;
-                    
+
                 case "DEPARTMENTS":
                     break;
 
                 case "RETURN TO MENU":
                     mainMenu();
-                    break;                
+                    break;
             }
         });
 }
@@ -110,7 +110,7 @@ const view = () => {
         }])
         .then(function (response) {
 
-            switch(response.view){
+            switch (response.view) {
                 case "EMPLOYEES":
                     viewEmployeesBy();
                     break;
@@ -118,17 +118,17 @@ const view = () => {
                 case "ROLES":
                     viewRoles();
                     break;
-                    
+
                 case "DEPARTMENTS":
                     viewDepartments();
                     break;
-                    
+
                 case "BUDGET":
                     break;
 
                 case "RETURN TO MENU":
                     mainMenu();
-                    break;                
+                    break;
             }
         });
 }
@@ -146,29 +146,32 @@ const viewEmployeesBy = () => {
         }])
         .then(function (response) {
 
-            switch(response.employees){
+            switch (response.employees) {
                 case "ALL":
                     viewAllEmployees();
                     break;
 
                 case "DEPARTMENT":
+                    viewByDepartment();
                     break;
-                    
+
                 case "MANAGER":
+                    viewByManager();
                     break;
 
                 case "RETURN TO MENU":
                     view();
-                    break;                
+                    break;
             }
         });
 }
 
 const viewAllEmployees = () => {
-    
+
     console.log("")
 
-    connection.query("SELECT * FROM employee", function (error, response) {
+    // Thanks AVI for the help with this query!
+    connection.query("SELECT E1.id, E1.first_name AS 'first name', E1.last_name AS 'last name', R.title AS role, R.salary, (CONCAT(E2.first_name, ' ', E2.last_name)) AS manager FROM employee AS E1 LEFT JOIN employee AS E2 on E1.manager_id = E2.id LEFT JOIN role AS R ON E1.role_id = R.id;", function (error, response) {
         if (error) console.log(`${logSymbols.error} ${error}`);
         console.table(response);
         mainMenu();
@@ -176,7 +179,7 @@ const viewAllEmployees = () => {
 }
 
 const viewRoles = () => {
-    
+
     console.log("")
 
     connection.query("SELECT role.id, role.title, role.salary, department.name AS department FROM role JOIN department ON role.department_id = department.id;", function (error, response) {
@@ -187,14 +190,72 @@ const viewRoles = () => {
 }
 
 const viewDepartments = () => {
-    
+
     console.log("")
-    
+
     connection.query("SELECT * FROM department", function (error, response) {
         if (error) console.log(`${logSymbols.error} ${error}`);
         console.table(response);
         mainMenu();
     });
+}
+
+const viewByDepartment = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Which DEPARTMENT do you want to VIEW?",
+            name: "whichDepartment",
+            choices: await getDepartments
+        }])
+        .then(function (response) {
+
+           console.log(response);
+        });
+}
+
+async function getDepartments() {
+    return new Promise((success, failure) => {
+
+        let query = connection.query("SELECT * FROM department", function (error, response) {
+            if (error) console.log(`${logSymbols.error} ${error}`);
+            let returnarray = [];
+            response.forEach(department => {console.log(department);returnarray.push(department)})
+            success(returnarray);
+        });
+    })
+}
+
+const viewByManager = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Which MANAGER do you want to VIEW?",
+            name: "whichManager",
+            choices: await getManagers
+        }])
+        .then(function (response) {
+
+           console.log(response);
+        });
+}
+
+async function getManagers() {
+    return new Promise((success, failure) => {
+
+        let query = connection.query("SELECT DISTINCT E1.manager_id, CONCAT(E2.first_name, ' ', E2.last_name) AS manager FROM employee AS E1 JOIN employee AS E2 ON E1.manager_id = E2.id WHERE E1.manager_id IS NOT NULL;", function (error, response) {
+            if (error) console.log(`${logSymbols.error} ${error}`);
+            let returnarray = [];
+            response.forEach(manager => {returnarray.push(manager.manager)})
+            success(returnarray);
+        });
+    })
 }
 
 // Update
@@ -211,16 +272,16 @@ const update = () => {
         }])
         .then(function (response) {
 
-            switch(response.update){
-               case "ROLES":
+            switch (response.update) {
+                case "ROLES":
                     break;
-                    
+
                 case "MANAGERS":
                     break;
 
                 case "RETURN TO MENU":
                     mainMenu();
-                    break;                
+                    break;
             }
         });
 }
@@ -239,19 +300,19 @@ const remove = () => {
         }])
         .then(function (response) {
 
-            switch(response.delete){
+            switch (response.delete) {
                 case "EMPLOYEES":
                     break;
 
                 case "ROLES":
                     break;
-                    
+
                 case "DEPARTMENTS":
                     break;
 
                 case "RETURN TO MENU":
                     mainMenu();
-                    break;                
+                    break;
             }
         });
 }
