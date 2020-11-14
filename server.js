@@ -75,7 +75,7 @@ const add = () => {
             type: "list",
             message: "What would you like to ADD?",
             name: "add",
-            choices: ["EMPLOYEES", "ROLES", "DEPARTMENTS", "RETURN TO MENU"]
+            choices: ["EMPLOYEES", "ROLES", "DEPARTMENT", "RETURN TO MENU"]
         }])
         .then(function (response) {
 
@@ -86,13 +86,36 @@ const add = () => {
                 case "ROLES":
                     break;
 
-                case "DEPARTMENTS":
+                case "DEPARTMENT":
+                    addDepartment();
                     break;
 
                 case "RETURN TO MENU":
                     mainMenu();
                     break;
             }
+        });
+}
+
+// Add Department
+const addDepartment = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "input",
+            message: "Which DEPARTMENT do you want to ADD?",
+            name: "addDepartment",
+            validate: value => value != "" ? true : logSymbols.warning + " Please enter a DEPARTMENT name!"
+        }])
+        .then(function (response) {
+            let tempDepartment = response.addDepartment;
+            let query = connection.query("INSERT INTO department (name) VALUES (?)", [tempDepartment], function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.log("--> Added department "+tempDepartment)
+                mainMenu();
+            });
         });
 }
 
@@ -213,7 +236,10 @@ const viewByDepartment = async () => {
         }])
         .then(function (response) {
 
-           console.log(response);
+            let query = connection.query("SELECT * FROM employee WHERE ?", [{id: response.whichDepartment}], function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.table(response);
+            });
         });
 }
 
@@ -223,7 +249,7 @@ async function getDepartments() {
         let query = connection.query("SELECT * FROM department", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
-            response.forEach(department => {console.log(department);returnarray.push(department)})
+            response.forEach(department => {console.log(department);returnarray.push({name: department.name, value:department.id})})
             success(returnarray);
         });
     })
