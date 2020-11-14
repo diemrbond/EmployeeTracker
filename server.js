@@ -84,6 +84,7 @@ const add = () => {
                     break;
 
                 case "ROLES":
+                    addRole();
                     break;
 
                 case "DEPARTMENT":
@@ -113,7 +114,44 @@ const addDepartment = async () => {
             let tempDepartment = response.addDepartment;
             let query = connection.query("INSERT INTO department (name) VALUES (?)", [tempDepartment], function (error, response) {
                 if (error) console.log(`${logSymbols.error} ${error}`);
-                console.log("--> Added department "+tempDepartment)
+                console.log(`${logSymbols.success} Added department ${tempDepartment}`)
+                mainMenu();
+            });
+        });
+}
+
+const addRole = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "input",
+            message: "What ROLE TITLE you like to ADD?",
+            name: "role",
+            validate: value => value != "" ? true : logSymbols.warning + " Please enter a ROLE TITLE!"
+        },
+        {
+            type: "number",
+            message: "What is the ROLE SALARY?",
+            name: "salary",
+            validate: value => value != "" ? true : logSymbols.warning + " Please enter a ROLE SALARY!"
+        },
+        {
+            type: "list",
+            message: "What is the ROLE's DEPARTMENT?",
+            name: "department",
+            choices: await getDepartments
+        }])
+        .then(function (response) {
+
+            let tempTitle = response.role;
+            let tempSalary = response.salary;
+            let tempDepartment = response.department;
+
+            let query = connection.query("INSERT INTO role SET ?", { title: tempTitle, salary: response.salary, department_id: response.department }, function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.log(`${logSymbols.success} Added role ${tempTitle}, salary ${tempSalary}, department_id ${tempDepartment}`)
                 mainMenu();
             });
         });
@@ -236,9 +274,10 @@ const viewByDepartment = async () => {
         }])
         .then(function (response) {
 
-            let query = connection.query("SELECT * FROM employee WHERE ?", [{id: response.whichDepartment}], function (error, response) {
+            let query = connection.query("SELECT * FROM employee WHERE ?", [{ id: response.whichDepartment }], function (error, response) {
                 if (error) console.log(`${logSymbols.error} ${error}`);
                 console.table(response);
+                mainMenu();
             });
         });
 }
@@ -249,7 +288,31 @@ async function getDepartments() {
         let query = connection.query("SELECT * FROM department", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
-            response.forEach(department => {console.log(department);returnarray.push({name: department.name, value:department.id})})
+            response.forEach(department => { returnarray.push({ name: department.name, value: department.id }) })
+            success(returnarray);
+        });
+    })
+}
+
+async function getRoles() {
+    return new Promise((success, failure) => {
+
+        let query = connection.query("SELECT * FROM role", function (error, response) {
+            if (error) console.log(`${logSymbols.error} ${error}`);
+            let returnarray = [];
+            response.forEach(role => { returnarray.push({ name: role.title, value: role.id }) })
+            success(returnarray);
+        });
+    })
+}
+
+async function getEmployees() {
+    return new Promise((success, failure) => {
+
+        let query = connection.query("SELECT * FROM employee", function (error, response) {
+            if (error) console.log(`${logSymbols.error} ${error}`);
+            let returnarray = [];
+            response.forEach(emp => { returnarray.push({ name: (emp.first_name + " " + emp.last_name), value: emp.id }) })
             success(returnarray);
         });
     })
@@ -268,7 +331,7 @@ const viewByManager = async () => {
         }])
         .then(function (response) {
 
-           console.log(response);
+            console.log(response);
         });
 }
 
@@ -278,7 +341,7 @@ async function getManagers() {
         let query = connection.query("SELECT DISTINCT E1.manager_id, CONCAT(E2.first_name, ' ', E2.last_name) AS manager FROM employee AS E1 JOIN employee AS E2 ON E1.manager_id = E2.id WHERE E1.manager_id IS NOT NULL;", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
-            response.forEach(manager => {returnarray.push(manager.manager)})
+            response.forEach(manager => { returnarray.push(manager.manager) })
             success(returnarray);
         });
     })
@@ -328,17 +391,89 @@ const remove = () => {
 
             switch (response.delete) {
                 case "EMPLOYEES":
+                    deleteEmployee();
                     break;
 
                 case "ROLES":
+                    deleteRole();
                     break;
 
                 case "DEPARTMENTS":
+                    deleteDepartment();
                     break;
 
                 case "RETURN TO MENU":
                     mainMenu();
                     break;
             }
+        });
+}
+
+const deleteEmployee = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Which EMPLOYEE do you want to DELETE?",
+            name: "whichEmployee",
+            choices: await getEmployees
+        }])
+        .then(function (response) {
+
+            let tempEmployee = response.whichEmployee;
+
+            let query = connection.query("DELETE FROM employee WHERE id=?", tempEmployee, function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.log(`${logSymbols.success} Removed employee ${tempEmployee}`)
+                mainMenu();
+            });
+        });
+}
+
+const deleteDepartment = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Which DEPARTMENT do you want to DELETE?",
+            name: "whichDepartment",
+            choices: await getDepartments
+        }])
+        .then(function (response) {
+
+            let tempDepartment = response.whichDepartment;
+
+            let query = connection.query("DELETE FROM department WHERE id=?", tempDepartment, function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.log(`${logSymbols.success} Removed department ${tempDepartment}`)
+                mainMenu();
+            });
+        });
+}
+
+const deleteRole = async () => {
+
+    console.log("");
+
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Which ROLE do you want to DELETE?",
+            name: "whichRole",
+            choices: await getRoles
+        }])
+        .then(function (response) {
+
+            let tempRole = response.whichRole;
+
+            let query = connection.query("DELETE FROM role WHERE id=?", tempRole, function (error, response) {
+                if (error) console.log(`${logSymbols.error} ${error}`);
+                console.log(`${logSymbols.success} Removed role ${tempRole}`)
+                mainMenu();
+            });
         });
 }
