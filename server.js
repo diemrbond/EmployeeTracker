@@ -319,11 +319,22 @@ const viewByDepartment = async () => {
         }])
         .then(function (response) {
 
-            let query = connection.query("SELECT * FROM employee WHERE ?", [{ id: response.whichDepartment }], function (error, response) {
-                if (error) console.log(`${logSymbols.error} ${error}`);
-                console.table(response);
+            if (response.whichDepartment != null){
+                let query = connection.query("SELECT E1.id, E1.first_name, E1.last_name, R.title AS role, R.salary, (CONCAT(E2.first_name, ' ', E2.last_name)) AS manager\
+                FROM employee AS E1\
+                LEFT JOIN employee AS E2 on E1.manager_id = E2.id\
+                LEFT JOIN role AS R ON E1.role_id = R.id\
+                WHERE R.title IN (SELECT title FROM role WHERE department_id=?)", [response.whichDepartment], function (error, response) {
+                    if (error) console.log(`${logSymbols.error} ${error}`);
+                    console.table(response);
+                    mainMenu();
+                });
+            }
+            else {
+                console.log(`${logSymbols.error} No Department Selected`);
                 mainMenu();
-            });
+            }
+           
         });
 }
 
@@ -386,21 +397,38 @@ const viewByManager = async () => {
             type: "list",
             message: "Which MANAGER do you want to VIEW?",
             name: "whichManager",
-            choices: await getManagers
+            choices: await getManagers(true)
         }])
         .then(function (response) {
-
-            console.log(response);
+            
+            if (response.whichManager != null){
+                connection.query("SELECT E1.id, E1.first_name AS 'first name', E1.last_name AS 'last name', R.title AS role, R.salary\
+                FROM employee AS E1 \
+                LEFT JOIN employee AS E2 on E1.manager_id = E2.id \
+                LEFT JOIN role AS R ON E1.role_id = R.id\
+                WHERE E1.manager_id=?", response.whichManager, function (error, response) {
+                    if (error) console.log(`${logSymbols.error} ${error}`);
+                    console.table(response);
+                    mainMenu();
+                });
+            }
+            else {
+                console.log(`${logSymbols.error} No Manager Selected`);
+                mainMenu();
+            }
         });
 }
 
-async function getManagers() {
+async function getManagers(addCancel) {
     return new Promise((success, failure) => {
 
         let query = connection.query("SELECT DISTINCT E1.manager_id, CONCAT(E2.first_name, ' ', E2.last_name) AS manager FROM employee AS E1 JOIN employee AS E2 ON E1.manager_id = E2.id WHERE E1.manager_id IS NOT NULL;", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
-            response.forEach(manager => { returnarray.push({ name: manager.manager, value: manager.id }) })
+            response.forEach(manager => { returnarray.push({ name: manager.manager, value: manager.manager_id }) })
+            if (addCancel) {
+                returnarray.push({ name: `${logSymbols.error} Cancel`, value: null })
+            }
             success(returnarray);
         });
     })
@@ -493,7 +521,7 @@ const updateManager = async () => {
 
             let tempEmployee = response.whichEmployee;
             let tempManager = response.whichManager;
-            
+
             let query = connection.query("UPDATE employee SET ? WHERE ?", [{ manager_id: tempManager }, { id: tempEmployee }], function (error, response) {
                 if (error) console.log(`${logSymbols.error} ${error}`);
                 console.log(`${logSymbols.success} Updated employee ${tempEmployee}`)
