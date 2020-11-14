@@ -133,16 +133,16 @@ const addRole = async () => {
             validate: value => value != "" ? true : logSymbols.warning + " Please enter a ROLE TITLE!"
         },
         {
-            type: "number",
+            type: "input",
             message: "What is the ROLE SALARY?",
             name: "salary",
-            validate: value => value != "" ? true : logSymbols.warning + " Please enter a ROLE SALARY!"
+            validate: value => !isNaN(value) ? true : logSymbols.warning + " Please enter a valid ROLE SALARY!"
         },
         {
             type: "list",
             message: "What is the ROLE's DEPARTMENT?",
             name: "department",
-            choices: await getDepartments
+            choices: await getDepartments(false)
         }])
         .then(function (response) {
 
@@ -174,18 +174,18 @@ const addEmployee = async () => {
             message: "What is your EMPLOYEE's LAST NAME?",
             name: "last",
             validate: value => value != "" ? true : logSymbols.warning + " Please enter a LAST NAME!"
-        },        
+        },
         {
             type: "list",
             message: "What is the EMPLOYEE's ROLE?",
             name: "role",
-            choices: await getRoles
-        },        
+            choices: await getRoles(false)
+        },
         {
             type: "list",
             message: "Who is the EMPLOYEE's MANAGER?",
             name: "manager",
-            choices: await getEmployees
+            choices: await getEmployees("None")
         }])
         .then(function (response) {
 
@@ -327,37 +327,51 @@ const viewByDepartment = async () => {
         });
 }
 
-async function getDepartments() {
+async function getDepartments(addCancel) {
     return new Promise((success, failure) => {
 
         let query = connection.query("SELECT * FROM department", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
             response.forEach(department => { returnarray.push({ name: department.name, value: department.id }) })
+            if(addCancel){
+                returnarray.push({ name: `${logSymbols.error} Cancel`, value: null })
+            }
             success(returnarray);
         });
     })
 }
 
-async function getRoles() {
+async function getRoles(addCancel) {
     return new Promise((success, failure) => {
 
         let query = connection.query("SELECT * FROM role", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
             response.forEach(role => { returnarray.push({ name: role.title, value: role.id }) })
+            if(addCancel){
+                returnarray.push({ name: `${logSymbols.error} Cancel`, value: null })
+            }
             success(returnarray);
         });
     })
 }
 
-async function getEmployees() {
+async function getEmployees(addCancel) {
     return new Promise((success, failure) => {
 
         let query = connection.query("SELECT * FROM employee", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
             response.forEach(emp => { returnarray.push({ name: (emp.first_name + " " + emp.last_name), value: emp.id }) })
+            if(addCancel){
+                if (addCancel != true){
+                    returnarray.push({ name: `${logSymbols.error} ${addCancel}`, value: null })
+                }
+                else {
+                    returnarray.push({ name: `${logSymbols.error} Cancel`, value: null })
+                }
+            }
             success(returnarray);
         });
     })
@@ -386,7 +400,7 @@ async function getManagers() {
         let query = connection.query("SELECT DISTINCT E1.manager_id, CONCAT(E2.first_name, ' ', E2.last_name) AS manager FROM employee AS E1 JOIN employee AS E2 ON E1.manager_id = E2.id WHERE E1.manager_id IS NOT NULL;", function (error, response) {
             if (error) console.log(`${logSymbols.error} ${error}`);
             let returnarray = [];
-            response.forEach(manager => { returnarray.push({name: manager.manager, value: manager.id}) })
+            response.forEach(manager => { returnarray.push({ name: manager.manager, value: manager.id }) })
             success(returnarray);
         });
     })
@@ -463,17 +477,24 @@ const deleteEmployee = async () => {
             type: "list",
             message: "Which EMPLOYEE do you want to DELETE?",
             name: "whichEmployee",
-            choices: await getEmployees
+            choices: await getEmployees(true)
         }])
         .then(function (response) {
 
             let tempEmployee = response.whichEmployee;
 
-            let query = connection.query("DELETE FROM employee WHERE id=?", tempEmployee, function (error, response) {
-                if (error) console.log(`${logSymbols.error} ${error}`);
-                console.log(`${logSymbols.success} Removed employee ${tempEmployee}`)
+            if (tempEmployee != null) {
+                let query = connection.query("DELETE FROM employee WHERE id=?", tempEmployee, function (error, response) {
+                    if (error) console.log(`${logSymbols.error} ${error}`);
+                    console.log(`${logSymbols.success} Removed employee ${tempEmployee}`)
+                    mainMenu();
+                });
+            }
+            else {
+                console.log(`${logSymbols.error} No Employee Selected`);
                 mainMenu();
-            });
+            }
+
         });
 }
 
@@ -492,11 +513,17 @@ const deleteDepartment = async () => {
 
             let tempDepartment = response.whichDepartment;
 
-            let query = connection.query("DELETE FROM department WHERE id=?", tempDepartment, function (error, response) {
-                if (error) console.log(`${logSymbols.error} ${error}`);
-                console.log(`${logSymbols.success} Removed department ${tempDepartment}`)
+            if (tempDepartment != null) {
+                let query = connection.query("DELETE FROM department WHERE id=?", tempDepartment, function (error, response) {
+                    if (error) console.log(`${logSymbols.error} ${error}`);
+                    console.log(`${logSymbols.success} Removed department ${tempDepartment}`)
+                    mainMenu();
+                });
+            }
+            else {
+                console.log(`${logSymbols.error} No Department Selected`);
                 mainMenu();
-            });
+            }
         });
 }
 
@@ -515,10 +542,16 @@ const deleteRole = async () => {
 
             let tempRole = response.whichRole;
 
-            let query = connection.query("DELETE FROM role WHERE id=?", tempRole, function (error, response) {
-                if (error) console.log(`${logSymbols.error} ${error}`);
-                console.log(`${logSymbols.success} Removed role ${tempRole}`)
+            if (tempRole != null) {
+                let query = connection.query("DELETE FROM role WHERE id=?", tempRole, function (error, response) {
+                    if (error) console.log(`${logSymbols.error} ${error}`);
+                    console.log(`${logSymbols.success} Removed role ${tempRole}`)
+                    mainMenu();
+                });
+            }
+            else {
+                console.log(`${logSymbols.error} No Role Selected`);
                 mainMenu();
-            });
+            }
         });
 }
