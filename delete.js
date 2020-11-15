@@ -33,7 +33,7 @@ const remove = () => {
                     break;
 
                 case "RETURN TO MENU":
-                    mainMenu();
+                    server.mainMenu();
                     break;
             }
         });

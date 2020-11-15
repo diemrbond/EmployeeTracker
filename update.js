@@ -29,7 +29,7 @@ const update = () => {
                     break;
 
                 case "RETURN TO MENU":
-                    mainMenu();
+                    server.mainMenu();
                     break;
             }
         });
