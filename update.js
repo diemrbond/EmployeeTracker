@@ -104,4 +104,5 @@ const updateManager = async () => {
         });
 }
 
+// EXPORTS
 exports.update = update;

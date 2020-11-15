@@ -72,6 +72,7 @@ async function getManagers(addCancel) {
     })
 }
 
+// EXPORTS
 exports.getDepartments = getDepartments;
 exports.getRoles = getRoles;
 exports.getEmployees = getEmployees;

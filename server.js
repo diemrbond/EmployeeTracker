@@ -9,6 +9,7 @@ require("dotenv").config();
 const view = require("./view");
 const add = require("./add");
 const update = require("./update");
+const remove = require("./delete");
 
 // CREATE CONNECTION
 let connection = mysql.createConnection({
@@ -64,7 +65,7 @@ const mainMenu = () => {
                     break;
 
                 case "DELETE":
-                    remove();
+                    remove.remove();
                     break;
 
                 case "EXIT PROGRAM":
@@ -73,133 +74,6 @@ const mainMenu = () => {
         });
 }
 
-
-
-
-
-
-
-// Delete
-const remove = () => {
-
-    console.log("");
-
-    inquirer
-        .prompt([{
-            type: "list",
-            message: "What would you like to DELETE?",
-            name: "delete",
-            choices: ["EMPLOYEES", "ROLES", "DEPARTMENTS", "RETURN TO MENU"]
-        }])
-        .then(function (response) {
-
-            switch (response.delete) {
-                case "EMPLOYEES":
-                    deleteEmployee();
-                    break;
-
-                case "ROLES":
-                    deleteRole();
-                    break;
-
-                case "DEPARTMENTS":
-                    deleteDepartment();
-                    break;
-
-                case "RETURN TO MENU":
-                    mainMenu();
-                    break;
-            }
-        });
-}
-
-const deleteEmployee = async () => {
-
-    console.log("");
-
-    inquirer
-        .prompt([{
-            type: "list",
-            message: "Which EMPLOYEE do you want to DELETE?",
-            name: "whichEmployee",
-            choices: await getEmployees(true)
-        }])
-        .then(function (response) {
-
-            let tempEmployee = response.whichEmployee;
-
-            if (tempEmployee != null) {
-                let query = connection.query("DELETE FROM employee WHERE id=?", tempEmployee, function (error, response) {
-                    if (error) console.log(`${logSymbols.error} ${error}`);
-                    console.log(`${logSymbols.success} Removed employee ${tempEmployee}`)
-                    mainMenu();
-                });
-            }
-            else {
-                console.log(`${logSymbols.error} No Employee Selected`);
-                mainMenu();
-            }
-
-        });
-}
-
-const deleteDepartment = async () => {
-
-    console.log("");
-
-    inquirer
-        .prompt([{
-            type: "list",
-            message: "Which DEPARTMENT do you want to DELETE?",
-            name: "whichDepartment",
-            choices: await getDepartments
-        }])
-        .then(function (response) {
-
-            let tempDepartment = response.whichDepartment;
-
-            if (tempDepartment != null) {
-                let query = connection.query("DELETE FROM department WHERE id=?", tempDepartment, function (error, response) {
-                    if (error) console.log(`${logSymbols.error} ${error}`);
-                    console.log(`${logSymbols.success} Removed department ${tempDepartment}`)
-                    mainMenu();
-                });
-            }
-            else {
-                console.log(`${logSymbols.error} No Department Selected`);
-                mainMenu();
-            }
-        });
-}
-
-const deleteRole = async () => {
-
-    console.log("");
-
-    inquirer
-        .prompt([{
-            type: "list",
-            message: "Which ROLE do you want to DELETE?",
-            name: "whichRole",
-            choices: await getRoles
-        }])
-        .then(function (response) {
-
-            let tempRole = response.whichRole;
-
-            if (tempRole != null) {
-                let query = connection.query("DELETE FROM role WHERE id=?", tempRole, function (error, response) {
-                    if (error) console.log(`${logSymbols.error} ${error}`);
-                    console.log(`${logSymbols.success} Removed role ${tempRole}`)
-                    mainMenu();
-                });
-            }
-            else {
-                console.log(`${logSymbols.error} No Role Selected`);
-                mainMenu();
-            }
-        });
-}
-
+// EXPORTS
 exports.connection = connection;
 exports.mainMenu = mainMenu;
