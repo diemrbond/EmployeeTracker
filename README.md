@@ -9,8 +9,8 @@
   Packages used include mysql, inquirer, console.tables.
 
 
-<img src="./assets/screenshot.jpg" width="600" /> <br>
-<img src="./assets/demo.gif" width="600" /> <br>
+<img src="./Assets/screenshot.jpg" width="600" /> <br>
+<img src="./Assets/demo.gif" width="600" /> <br>
 
   ---
 ## Demonstration Video
