@@ -230,6 +230,7 @@ const view = () => {
                     break;
 
                 case "BUDGET":
+                    viewBudget();
                     break;
 
                 case "RETURN TO MENU":
@@ -300,6 +301,22 @@ const viewDepartments = () => {
     console.log("")
 
     connection.query("SELECT * FROM department", function (error, response) {
+        if (error) console.log(`${logSymbols.error} ${error}`);
+        console.table(response);
+        mainMenu();
+    });
+}
+
+const viewBudget = () => {
+
+    console.log("")
+
+    connection.query("SELECT  D2.id, D2.name, SUM(R.salary) AS budget\
+    FROM employee AS E1\
+    LEFT JOIN role AS R ON E1.role_id = R.id\
+    LEFT JOIN department AS D2 on R.department_id = D2.id\
+    WHERE R.title IN (SELECT title FROM role)\
+    GROUP BY D2.id", function (error, response) {
         if (error) console.log(`${logSymbols.error} ${error}`);
         console.table(response);
         mainMenu();
