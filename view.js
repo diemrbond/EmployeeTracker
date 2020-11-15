@@ -83,7 +83,7 @@ const viewAllEmployees = () => {
     console.log("")
 
     // Thanks AVI for the help with this query!
-    server.connection.query("SELECT E1.id, E1.first_name AS 'first name', E1.last_name AS 'last name', R.title AS role, R.salary, (CONCAT(E2.first_name, ' ', E2.last_name)) AS manager FROM employee AS E1 LEFT JOIN employee AS E2 on E1.manager_id = E2.id LEFT JOIN role AS R ON E1.role_id = R.id;", function (error, response) {
+    server.connection.query("SELECT E1.id, E1.first_name AS 'first name', E1.last_name AS 'last name', R.title AS role, D.name AS department, R.salary, (CONCAT(E2.first_name, ' ', E2.last_name)) AS manager FROM employee AS E1 LEFT JOIN employee AS E2 on E1.manager_id = E2.id LEFT JOIN role AS R ON E1.role_id = R.id LEFT JOIN department AS D on R.department_id = D.id;", function (error, response) {
         if (error) console.log(`${logSymbols.error} ${error}`);
         console.table(response);
         server.mainMenu();

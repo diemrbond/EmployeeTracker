@@ -69,6 +69,7 @@ const mainMenu = () => {
                     break;
 
                 case "EXIT PROGRAM":
+                    console.log("\nThanks, see you next time!")
                     process.exit();
             }
         });
