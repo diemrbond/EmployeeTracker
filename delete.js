@@ -50,17 +50,27 @@ const deleteEmployee = async () => {
             message: "Which EMPLOYEE do you want to DELETE?",
             name: "whichEmployee",
             choices: await get.getEmployees(true)
+        },
+        {
+            type: "confirm",
+            message: "Are you sure you want to DELETE this EMPLOYEE?",
+            name: "confirm",
+            default: false
         }])
         .then(function (response) {
-
+            
             let tempEmployee = response.whichEmployee;
 
-            if (tempEmployee != null) {
+            if ((tempEmployee != null) && (response.confirm)) {
                 let query = server.connection.query("DELETE FROM employee WHERE id=?", tempEmployee, function (error, response) {
                     if (error) console.log(`${logSymbols.error} ${error}`);
                     console.log(`${logSymbols.success} Removed employee ${tempEmployee}`)
                     server.mainMenu();
                 });
+            }
+            else if (!response.confirm){
+                console.log(`${logSymbols.error} Employee NOT Deleted`);
+                server.mainMenu();
             }
             else {
                 console.log(`${logSymbols.error} No Employee Selected`);
@@ -81,17 +91,27 @@ const deleteDepartment = async () => {
             message: "Which DEPARTMENT do you want to DELETE?",
             name: "whichDepartment",
             choices: await get.getDepartments
+        },
+        {
+            type: "confirm",
+            message: "Are you sure you want to DELETE this DEPARTMENT?",
+            name: "confirm",
+            default: false
         }])
         .then(function (response) {
 
             let tempDepartment = response.whichDepartment;
 
-            if (tempDepartment != null) {
+            if ((tempDepartment != null) && (response.confirm)) {
                 let query = server.connection.query("DELETE FROM department WHERE id=?", tempDepartment, function (error, response) {
                     if (error) console.log(`${logSymbols.error} ${error}`);
                     console.log(`${logSymbols.success} Removed department ${tempDepartment}`)
                     server.mainMenu();
                 });
+            }
+            else if (!response.confirm){
+                console.log(`${logSymbols.error} Department NOT Deleted`);
+                server.mainMenu();
             }
             else {
                 console.log(`${logSymbols.error} No Department Selected`);
@@ -111,17 +131,27 @@ const deleteRole = async () => {
             message: "Which ROLE do you want to DELETE?",
             name: "whichRole",
             choices: await get.getRoles
+        },
+        {
+            type: "confirm",
+            message: "Are you sure you want to DELETE this ROLE?",
+            name: "confirm",
+            default: false
         }])
         .then(function (response) {
 
             let tempRole = response.whichRole;
 
-            if (tempRole != null) {
+            if ((tempRole != null) && (response.confirm)) {
                 let query = server.connection.query("DELETE FROM role WHERE id=?", tempRole, function (error, response) {
                     if (error) console.log(`${logSymbols.error} ${error}`);
                     console.log(`${logSymbols.success} Removed role ${tempRole}`)
                     server.mainMenu();
                 });
+            }
+            else if (!response.confirm){
+                console.log(`${logSymbols.error} Role NOT Deleted`);
+                server.mainMenu();
             }
             else {
                 console.log(`${logSymbols.error} No Role Selected`);
