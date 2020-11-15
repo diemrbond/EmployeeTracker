@@ -11,6 +11,9 @@ const add = require("./lib/add");
 const update = require("./lib/update");
 const remove = require("./lib/delete");
 
+// CLEAR CONSOLE
+console.clear();
+
 // CREATE CONNECTION
 let connection = mysql.createConnection({
     host: "localhost",
@@ -22,6 +25,7 @@ let connection = mysql.createConnection({
 
 // CONNECT
 connection.connect(function (error) {
+    
     if (error) console.log(`${logSymbols.error} ${error}`);
     console.log(`\n${logSymbols.success} Connected to employeeDB.`);
     console.log('  Starting program...\n');
