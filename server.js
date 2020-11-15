@@ -6,10 +6,10 @@ const logSymbols = require('log-symbols');
 require("dotenv").config();
 
 // MODULES
-const view = require("./view");
-const add = require("./add");
-const update = require("./update");
-const remove = require("./delete");
+const view = require("./lib/view");
+const add = require("./lib/add");
+const update = require("./lib/update");
+const remove = require("./lib/delete");
 
 // CREATE CONNECTION
 let connection = mysql.createConnection({
