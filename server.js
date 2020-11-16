@@ -74,7 +74,7 @@ const mainMenu = () => {
 
                 case "EXIT PROGRAM":
                     console.log("\nThanks, see you next time!")
-                    process.exit();
+                    connection.end();
             }
         });
 }
