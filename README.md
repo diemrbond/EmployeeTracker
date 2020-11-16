@@ -36,7 +36,10 @@ https://www.youtube.com/watch?v=BiVQcKUq5Y4
   
   ---
   ## Usage 
-  To use this project, run `node server.js` and follow the onscreen instructions.
+  To use this project:
+  1. In the EmployeeTracker directory, create a .env file
+  2. Add your mysql password in the format `DB_PASS=YourPassword`
+  3. Run `node server.js` and follow the onscreen instructions.
 
 
   
